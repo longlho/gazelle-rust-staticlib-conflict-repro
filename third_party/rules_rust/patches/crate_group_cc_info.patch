@@ -1,52 +1,45 @@
 diff --git a/rust/private/rustc.bzl b/rust/private/rustc.bzl
-index 6fe6f1e..04f11e2 100644
+index 783f583f09..8832ea7d7b 100644
 --- a/rust/private/rustc.bzl
 +++ b/rust/private/rustc.bzl
-@@ -1945,6 +1945,13 @@ def _collect_nonstatic_linker_inputs(cc_info):
+@@ -1957,6 +1957,18 @@ def _collect_nonstatic_linker_inputs(cc_info):
              ))
      return shared_linker_inputs
  
-+def _expand_dep_variant_infos(dep):
++def _collect_dep_cc_infos(dep):
++    cc_infos = []
 +    crate_group = getattr(dep, "crate_group_info", None)
 +    if crate_group:
-+        return crate_group.dep_variant_infos.to_list()
++        for group_dep in crate_group.dep_variant_infos.to_list():
++            if group_dep.cc_info:
++                cc_infos.append(group_dep.cc_info)
++    elif dep.cc_info:
++        cc_infos.append(dep.cc_info)
 +
-+    return [dep]
++    return cc_infos
 +
  def _add_lto_flags(ctx, toolchain, args, crate):
      """Adds flags to an Args object to configure LTO for 'rustc'.
  
-@@ -2063,19 +2070,20 @@ def establish_cc_info(ctx, attr, crate_info, toolchain, cc_toolchain, feature_co
-     ]
+@@ -2076,18 +2088,18 @@ def establish_cc_info(ctx, attr, crate_info, toolchain, cc_toolchain, feature_co
  
      # Flattening is okay since crate_info.deps only records direct deps.
--    for dep in crate_info.deps.to_list():
+     for dep in crate_info.deps.to_list():
 -        if dep.cc_info:
--            # A Rust staticlib or shared library doesn't need to propagate linker inputs
--            # of its dependencies, except for shared libraries.
--            if crate_info.type in ["cdylib", "staticlib"]:
++        for dep_cc_info in _collect_dep_cc_infos(dep):
+             # A Rust staticlib or shared library doesn't need to propagate linker inputs
+             # of its dependencies, except for shared libraries.
+             if crate_info.type in ["cdylib", "staticlib"]:
 -                shared_linker_inputs = _collect_nonstatic_linker_inputs(dep.cc_info)
--                if shared_linker_inputs:
--                    linking_context = cc_common.create_linking_context(
--                        linker_inputs = depset(shared_linker_inputs),
--                    )
--                    cc_infos.append(CcInfo(linking_context = linking_context))
--            else:
++                shared_linker_inputs = _collect_nonstatic_linker_inputs(dep_cc_info)
+                 if shared_linker_inputs:
+                     linking_context = cc_common.create_linking_context(
+                         linker_inputs = depset(shared_linker_inputs),
+                     )
+                     cc_infos.append(CcInfo(linking_context = linking_context))
+             else:
 -                cc_infos.append(dep.cc_info)
-+    for direct_dep in crate_info.deps.to_list():
-+        for dep in _expand_dep_variant_infos(direct_dep):
-+            if dep.cc_info:
-+                # A Rust staticlib or shared library doesn't need to propagate linker inputs
-+                # of its dependencies, except for shared libraries.
-+                if crate_info.type in ["cdylib", "staticlib"]:
-+                    shared_linker_inputs = _collect_nonstatic_linker_inputs(dep.cc_info)
-+                    if shared_linker_inputs:
-+                        linking_context = cc_common.create_linking_context(
-+                            linker_inputs = depset(shared_linker_inputs),
-+                        )
-+                        cc_infos.append(CcInfo(linking_context = linking_context))
-+                else:
-+                    cc_infos.append(dep.cc_info)
++                cc_infos.append(dep_cc_info)
  
      if crate_info.type in ("rlib", "lib"):
          libstd_and_allocator_cc_info = _get_std_and_alloc_info(ctx, toolchain, crate_info)
