@@ -10,9 +10,10 @@ bazel_dep(name = "gazelle_ts", version = "0.4.5")
 bazel_dep(name = "llvm", version = "0.7.6")
 bazel_dep(name = "rules_rs", version = "0.0.68")
 
-# Baseline for the second-stage failure:
-# both language plugins have namespaced C ABI symbols, but gazelle_ts is still
-# before the Rust staticlib symbol-localization series.
+# Prove the fix against the patched upstream sources before they are released:
+# gazelle_py has the C ABI namespacing fix from perplexityai/gazelle_py#45,
+# while gazelle_ts carries the rules_rust/LLVM staticlib localization series
+# from hermeticbuild/gazelle_ts#57.
 git_override(
     module_name = "gazelle_py",
     commit = "5b4e319987732ce1ee39a51ed3ca0e8973cc4f1f",
@@ -21,6 +22,6 @@ git_override(
 
 git_override(
     module_name = "gazelle_ts",
-    commit = "e8d2ad517360081a96eeda79af24eb3e0e69a825",
+    commit = "831e579995abee18729644875dc4543809ba3ff5",
     remote = "https://github.com/hermeticbuild/gazelle_ts.git",
 )
