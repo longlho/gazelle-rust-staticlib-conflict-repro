@@ -1,0 +1,16 @@
+diff --git a/ts/BUILD.bazel b/ts/BUILD.bazel
+--- a/ts/BUILD.bazel
++++ b/ts/BUILD.bazel
+@@ -33,10 +33,7 @@ go_library(
+         "resolve.go",
+     ],
+     cgo = True,
+-    # Rust import_extractor staticlib linked via cgo. The wrapper in
+-    # //crates/import_extractor pins compilation_mode=opt and the release
+-    # rustc flags via with_cfg, so consumers get an optimized binary even
+-    # when their own bazel invocation runs in fastbuild.
+-    cdeps = ["//crates/import_extractor:import_extractor_static"],
++    # Link the Rust rlib via cgo so transitive Rust crates remain dedupable.
++    cdeps = ["//crates/import_extractor:import_extractor"],
+     # Rust std uses dlsym (sys/pal/unix/weak/dlsym.rs). On glibc < 2.34
+     # (e.g. Debian 11) libdl is a separate object — without -ldl the cgo

@@ -1,0 +1,17 @@
+diff --git a/py/BUILD.bazel b/py/BUILD.bazel
+--- a/py/BUILD.bazel
++++ b/py/BUILD.bazel
+@@ -29,10 +29,7 @@ go_library(
+         "stdlib.go",
+     ],
+     cgo = True,
+-    # Rust import_extractor staticlib linked via cgo. The wrapper in
+-    # //crates/import_extractor pins compilation_mode=opt and the release
+-    # rustc flags via with_cfg, so consumers get an optimized binary even
+-    # when their own bazel invocation runs in fastbuild.
+-    cdeps = ["//crates/import_extractor:import_extractor_static"],
++    # Link the Rust rlib via cgo so transitive Rust crates remain dedupable.
++    cdeps = ["//crates/import_extractor:import_extractor"],
+     importpath = "github.com/hermeticbuild/gazelle_py/py",
+     visibility = ["//visibility:public"],
+     deps = [
