@@ -1,0 +1,20 @@
+build --registry=https://bcr.bazel.build
+
+# Pin the Linux host platform so rules_rs's Rust toolchains match their
+# hermetic GNU libc constraint.
+common --enable_platform_specific_config
+common:linux --host_platform=@gazelle_ts//platforms:local_gnu
+
+# Use the hermetic LLVM C/C++ toolchain instead of Bazel autodetection.
+common --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+common --repo_env=BAZEL_NO_APPLE_CPP_TOOLCHAIN=1
+common --@llvm//config:experimental_stub_libgcc_s=True
+
+# Go 1.27 should make Go binaries PIE-compatible; remove this once it does.
+build:linux --linkopt=-no-pie
+
+build --show_result=0
+test --test_output=errors
+
+try-import %workspace%/.bazelrc.user
+
