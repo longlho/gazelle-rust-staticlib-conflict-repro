@@ -7,4 +7,5 @@ module(
 bazel_dep(name = "gazelle", version = "0.50.0")
 bazel_dep(name = "gazelle_py", version = "0.8.2")
 bazel_dep(name = "gazelle_ts", version = "0.4.5")
-
+bazel_dep(name = "llvm", version = "0.7.6")
+bazel_dep(name = "rules_rs", version = "0.0.68")
