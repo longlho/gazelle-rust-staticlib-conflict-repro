@@ -1,0 +1,10 @@
+module(
+    name = "gazelle_rust_staticlib_conflict_repro",
+    version = "0.0.0",
+    bazel_compatibility = [">=8.5.0"],
+)
+
+bazel_dep(name = "gazelle", version = "0.50.0")
+bazel_dep(name = "gazelle_py", version = "0.8.2")
+bazel_dep(name = "gazelle_ts", version = "0.4.5")
+

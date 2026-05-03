@@ -1,0 +1,22 @@
+name: repro
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-gazelle-bin:
+    name: build gazelle_bin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: bazelbuild/setup-bazelisk@v3
+
+      - name: Show Bazel version
+        run: bazel version
+
+      - name: Build composed Gazelle binary
+        run: bazel build //:gazelle_bin
+
