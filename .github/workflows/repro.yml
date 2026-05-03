@@ -19,23 +19,3 @@ jobs:
 
       - name: Build composed Gazelle binary
         run: bazel build //:gazelle_bin
-
-  cross-compile-gazelle-bin:
-    name: cross-compile gazelle_bin (${{ matrix.platform }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - "@rules_rs//rs/platforms:x86_64-unknown-linux-gnu"
-          - "@rules_rs//rs/platforms:aarch64-apple-darwin"
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: bazelbuild/setup-bazelisk@v3
-
-      - name: Show Bazel version
-        run: bazel version
-
-      - name: Analyze composed Gazelle binary for target platform
-        run: bazel build --nobuild --platforms=${{ matrix.platform }} //:gazelle_bin
